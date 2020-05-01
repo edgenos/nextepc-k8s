@@ -5,6 +5,7 @@ DB_NAME="nextepc"
 DISABLED_IPV6="true"
 HSS_DOMAIN="localdomain"
 HSS_FQDN="hss.localdomain"
+IMAGE_NAME="localhost/johndoe/ne-hss"
 
 sudo docker run -it \
         --privileged \
@@ -15,4 +16,4 @@ sudo docker run -it \
         -e DISABLED_IPV6="${DISABLED_IPV6}" \
         -e HSS_DOMAIN="${HSS_DOMAIN}" \
         -e HSS_FQDN="${HSS_FQDN}" \
-        localhost/ooladmin/ne-hss
+        ${IMAGE_NAME}
