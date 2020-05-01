@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ne-pcrf
+  labels:
+    app: ne-pcrf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ne-pcrf
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ne-pcrf
+      annotations:
+        k8s.v1.cni.cncf.io/networks: ne-pcrf-net1, ne-pcrf-net2
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - name: ne-pcrf
+        image: sumichaaan/ne-pcrf:ubt18
+        imagePullPolicy: Always
+        #command: ['sh', '-c', 'sleep 6000']
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 3868
+          protocol: TCP
+          name: ne-pcrf
+        - containerPort: 5868
+          protocol: TCP
+          name: ne-pcrf-secure
+        env:
+          - name: DISABLE_IPV6
+            valueFrom:
+              configMapKeyRef:
+                name: ne-pcrf-config
+                value: DNS_SECONDARY_IP
+      - name: tcpdump
+        image: corfr/tcpdump
+        command:
+          - /bin/sleep
+          - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      serviceAccountName: ne-pcrf-sa
+      terminationGracePeriodSeconds: 30
