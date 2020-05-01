@@ -55,4 +55,4 @@ RUN mkdir -p /var/run/nextepc-hssd \
              /var/log/nextepc-hssd
 
 CMD ["nextepc-hssd", "-f", "/opt/nextepc/etc/hss.conf"]
-ENTRYPOINT ["/opt/oai-hss/bin/entrypoint.bash"]
+ENTRYPOINT ["/opt/nextepc/bin/entrypoint.bash"]
