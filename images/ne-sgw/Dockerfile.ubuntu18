@@ -1,0 +1,53 @@
+FROM localhost/ooladmin/ne-build-base AS builder
+MAINTAINER YOSHIFUMI sumida <yoshifumi.sumida@gmail.com>
+
+WORKDIR /root
+
+ARG NEXTEPC_GIT=https://github.com/nextepc/nextepc
+ARG NEXTEPC_BRANCH=master
+
+RUN git clone --depth 1 -b ${NEXTEPC_BRANCH} ${NEXTEPC_GIT} && \
+    cd nextepc && \
+    autoreconf -f -i && \
+    ./configure \
+        --prefix=/usr \
+        --sysconfdir=/etc/ \
+        --localstatedir=/var && \
+    make -j`nproc` && \
+    make install-strip
+
+
+FROM ubuntu:18.04
+
+RUN apt-get update && \
+    apt-get install -y \
+        libsctp1 \
+        libgcrypt20 \
+        libgnutls28-dev \
+        libssl1.1 \
+        libmongoc-1.0-0 \
+        libidn11 \
+        libidn2-0 \
+        libbson-1.0-0 \
+        libyaml-0-2 \
+        iproute2 \
+        ca-certificates \
+        netbase \
+        pkg-config && \
+    apt-get remove --purge -y \
+        gcc g++ libc6-dev make && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV NEXTEPC_BUILD_ROOT=/root/nextepc
+ENV NEXTEPC_LIBS=/usr/lib/nextepc
+
+COPY --from=builder ${NEXTEPC_LIBS}/ /usr/lib/x86_64-linux-gnu
+COPY --from=builder ${NEXTEPC_LIBS}/freeDiameter/ /usr/lib/x86_64-linux-gnu
+COPY --from=builder /usr/bin/nextepc-sgwd /usr/bin/nextepc-sgwd
+
+COPY configs/ /opt/nextepc/etc/
+
+# Creating directories requird at running NextEPC
+RUN mkdir -p /var/run/nextepc-sgwd \
+             /var/log/nextepc-sgwd
