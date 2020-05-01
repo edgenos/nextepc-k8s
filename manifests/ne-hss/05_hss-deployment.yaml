@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ne-hss
+  name: ne-hss
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ne-hss
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: ne-hss-net1
+      labels:
+        app: ne-hss
+    spec:
+      containers:
+      - name: ne-hss
+        image: sumichaaan/ne-hss:ubt18
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3868
+          name: ne-hss
+        - containerPort: 5868
+          name: ne-hss-secure
+        volumeMounts:
+        - mountPath: /opt/nextepc/etc/freeDiameter/cacert.pem
+          subPath: cacert.pem
+          name: ne-hss-certs
+        - mountPath: /opt/nextepc/etc/freeDiameter/hss.cert.pem
+          subPath: hss.cert.pem
+          name: ne-hss-certs
+        - mountPath: /opt/nextepc/etc/freeDiameter/hss.key.pem
+          subPath: hss.cert.pem
+          name: ne-hss-certs
+        env:
+        - name: HOSTNAME
+          valueFrom:
+            configMapKeyRef:
+              key: identity
+              name: hss-config
+        - name: DB_FQDN
+          valueFrom:
+            configMapKeyRef:
+              key: db_fqdn
+              name: hss-config
+      - command:
+        - /bin/sleep
+        - infinity
+        image: corfr/tcpdump
+        name: tcpdump
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccountName: hss-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: ne-hss-certs
+        secret:
+          secretName: ne-hss-tls-secret

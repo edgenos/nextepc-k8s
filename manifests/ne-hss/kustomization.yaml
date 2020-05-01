@@ -1,0 +1,20 @@
+resources:
+- 00_hss-sa.yaml
+- 01_hss-rbac.yaml
+- 02_hss-configmap.yaml
+- 03_hss-service.yaml
+- 04_hss-multus.yaml
+- 05_hss-deployment.yaml
+
+namespace: lte
+
+secretGenerator:
+- name: ne-hss-tls-secret
+  namespace: lte
+  files:
+  - certs/cacert.pem
+  - certs/hss.cert.pem
+  - certs/hss.key.pem
+  type: "Opaque"
+generatorOptions:
+  disableNameSuffixHash: true
