@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ne-sgw
+  name: ne-sgw
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: ne-sgw-gtpc
+    port: 2123
+    protocol: UDP
+  - name: ne-sgw-gtpu
+    port: 2152
+    protocol: UDP
+    targetPort: 2123
+  selector:
+    app: ne-sgw

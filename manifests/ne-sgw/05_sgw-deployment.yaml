@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ne-sgw
+  labels:
+    app: ne-sgw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ne-sgw
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ne-sgw
+      annotations:
+        k8s.v1.cni.cncf.io/networks: ne-sgw-net1, ne-sgw-net2
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - name: ne-sgw
+        image: sumichaaan/ne-sgw:ubt18
+        imagePullPolicy: Always
+        #command: ['sh', '-c', 'sleep 6000']
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 2123
+          protocol: UDP
+          name: ne-sgw-gtpc
+        - containerPort: 2152
+          protocol: UDP
+          name: ne-sgw-gtpu
+        env:
+          - name NW_GTPC_IP
+            valueFrom:
+              configMapKeyRef:
+                name: nw-sgw-config
+                key: nw_gtpc_ip
+          - name NW_GTPU_IP
+            valueFrom:
+              configMapKeyRef:
+                name: nw-sgw-config
+                key: nw_gtpu_ip
+      - name: tcpdump
+        image: corfr/tcpdump
+        command:
+          - /bin/sleep
+          - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      serviceAccountName: ne-sgw-sa
+      terminationGracePeriodSeconds: 30

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ne-sgw-config
+data:
+  nw_gtpc_ip: "172.17.0.10"
+  nw_gtpu_ip: "172.20.0.10"
