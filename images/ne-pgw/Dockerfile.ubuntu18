@@ -48,7 +48,10 @@ COPY --from=builder /usr/bin/nextepc-pgwd /usr/bin/nextepc-pgwd
 
 COPY configs/ /opt/nextepc/etc/
 COPY scripts/ /opt/nextepc/bin/
+COPY certs/ /opt/nextepc/certs/
 
 # Creating directories requird at running NextEPC
 RUN mkdir -p /var/run/nextepc-pgwd \
              /var/log/nextepc-pgwd
+
+ENTRYPOINT ["nextepc-pgwd", "-f", "/opt/nextepc/etc/pgw.conf"]
