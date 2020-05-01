@@ -47,7 +47,10 @@ COPY --from=builder ${NEXTEPC_LIBS}/freeDiameter/ /usr/lib/x86_64-linux-gnu
 COPY --from=builder /usr/bin/nextepc-pcrfd /usr/bin/nextepc-pcrfd
 
 COPY configs/ /opt/nextepc/etc/
+COPY certs/ /opt/nextepc/certs/
 
 # Creating directories requird at running NextEPC
 RUN mkdir -p /var/run/nextepc-pcrfd \
              /var/log/nextepc-pcrfd
+
+ENTRYPOINT ["nextepc-pcrfd", "-f", "/opt/nextepc/etc/pcrf.conf"]
