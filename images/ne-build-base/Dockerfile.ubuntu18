@@ -1,0 +1,33 @@
+FROM ubuntu:18.04
+MAINTAINER YOSHIFUMI sumida <yoshifumi.sumida@gmail.com>
+
+ARG GIT_TAG=latest
+LABEL name="nextepc" \
+      version="${GIT_TAG}.ubuntu18" \
+      io.k8s.description="Image containing all build dependencies for nextepc."
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+        autoconf \
+        automake \
+        libtool \
+        gcc \
+        flex \
+        bison \
+        git \
+        libsctp-dev \
+        libgnutls28-dev \
+        libgcrypt-dev \
+        libssl-dev \
+        libidn11-dev \
+        libmongoc-dev \
+        libbson-dev \
+        libyaml-dev \
+        build-essential \
+        iproute2 \
+        ca-certificates \
+        netbase \
+        pkg-config && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
