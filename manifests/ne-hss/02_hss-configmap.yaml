@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: ne-hss-config
 data:
-  db_fqdn: "cassandra-0.cassandra.oai.svc.cluster.local"
+  db_fqdn: "mongodb-0.mongodb.lte.svc.cluster.local"

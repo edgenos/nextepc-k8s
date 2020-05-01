@@ -48,9 +48,11 @@ COPY --from=builder /usr/bin/nextepc-hssd /usr/bin/nextepc-hssd
 
 COPY configs/ /opt/nextepc/etc/
 COPY certs/ /opt/nextepc/certs/
+COPY scripts/ /opt/nextepc/bin/
 
 # Creating directories requird at running NextEPC
 RUN mkdir -p /var/run/nextepc-hssd \
              /var/log/nextepc-hssd
 
-ENTRYPOINT ["nextepc-hssd", "-f", "/opt/nextepc/etc/hss.conf"]
+CMD ["nextepc-hssd", "-f", "/opt/nextepc/etc/hss.conf"]
+ENTRYPOINT ["/opt/oai-hss/bin/entrypoint.bash"]
