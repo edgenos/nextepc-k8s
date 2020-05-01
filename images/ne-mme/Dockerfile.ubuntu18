@@ -47,7 +47,10 @@ COPY --from=builder ${NEXTEPC_LIBS}/freeDiameter/ /usr/lib/x86_64-linux-gnu
 COPY --from=builder /usr/bin/nextepc-mmed /usr/bin/nextepc-mmed
 
 COPY configs/ /opt/nextepc/etc/
+COPY certs/ /opt/nextepc/certs/
 
 # Creating directories requird at running NextEPC
 RUN mkdir -p /var/run/nextepc-mmed \
              /var/log/nextepc-mmed
+
+ENTRYPOINT ["nextepc-mmed", "-f", "/opt/nextepc/etc/mme.conf"]
