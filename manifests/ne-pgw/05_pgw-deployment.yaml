@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ne-pgw
+  labels:
+    app: ne-pgw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ne-pgw
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ne-pgw
+      annotations:
+        k8s.v1.cni.cncf.io/networks: ne-pgw-net1, ne-pgw-net2
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - name: ne-pgw
+        image: sumichaaan/ne-pgw:ubt18
+        imagePullPolicy: Always
+        #command: ['sh', '-c', 'sleep 6000']
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 3868
+          protocol: TCP
+          name: ne-pgw
+        - containerPort: 5868
+          protocol: TCP
+          name: ne-pgw-secure
+        - containerPort: 2123
+          protocol: UDP
+          name: ne-pgw-gtpc
+        - containerPort: 2152
+          protocol: UDP
+          name: ne-pgw-gtpu
+        env:
+          - name: NW_GTPC_IP
+            valueFrom:
+              configMapKeyRef:
+                name: nw-pgw-config
+                key: nw_gtpc_ip
+          - name: NW_GTPU_IP
+            valueFrom:
+              configMapKeyRef:
+                name: nw-pgw-config
+                key: nw_gtpu_ip
+          - name: UE_POOL_CIDR
+            valueFrom:
+              configMapKeyRef:
+                name: ne-pgw-config
+                value: ue_pool_cidr
+          - name: DNS_PRIMARY_IP
+            valueFrom:
+              configMapKeyRef:
+                name: ne-pgw-config
+                value: DNS_PRIMARY_IP
+          - name: DNS_SECONDARY_IP
+            valueFrom:
+              configMapKeyRef:
+                name: ne-pgw-config
+                value: DNS_SECONDARY_IP
+          - name: DISABLE_IPV6
+            valueFrom:
+              configMapKeyRef:
+                name: ne-pgw-config
+                value: DNS_SECONDARY_IP
+      - name: tcpdump
+        image: corfr/tcpdump
+        command:
+          - /bin/sleep
+          - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      serviceAccountName: ne-pgw-sa
+      terminationGracePeriodSeconds: 30

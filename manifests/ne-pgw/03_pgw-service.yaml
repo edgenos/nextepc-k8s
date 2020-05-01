@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ne-pgw
+  name: ne-pgw
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: ne-pgw
+    port: 3868
+    protocol: TCP
+    targetPort: 3868
+  - name: ne-pgw-secure
+    port: 5868
+    protocol: TCP
+    targetPort: 5868
+  - name: ne-pgw-gtpc
+    port: 2123
+    protocol: UDP
+  - name: ne-pgw-gtpu
+    port: 2152
+    protocol: UDP
+    targetPort: 2123
+  selector:
+    app: ne-pgw

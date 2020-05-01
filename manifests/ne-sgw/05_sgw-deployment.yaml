@@ -36,12 +36,12 @@ spec:
           protocol: UDP
           name: ne-sgw-gtpu
         env:
-          - name NW_GTPC_IP
+          - name: NW_GTPC_IP
             valueFrom:
               configMapKeyRef:
                 name: nw-sgw-config
                 key: nw_gtpc_ip
-          - name NW_GTPU_IP
+          - name: NW_GTPU_IP
             valueFrom:
               configMapKeyRef:
                 name: nw-sgw-config
