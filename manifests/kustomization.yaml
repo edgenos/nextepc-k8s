@@ -1,0 +1,10 @@
+resources:
+- 00_namespace.yaml
+- ne-mgo
+- ne-hss
+- ne-mme
+- ne-sgw
+- ne-pgw
+- ne-pcrf
+
+namespace: lte
