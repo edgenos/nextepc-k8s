@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ne-mme
+  labels:
+    app: ne-mme
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ne-mme
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ne-mme
+      annotations:
+        k8s.v1.cni.cncf.io/networks: ne-mme-net1, ne-mme-net2
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - name: ne-mme
+        image: sumichaaan/ne-mme:ubt18
+        imagePullPolicy: Always
+        #command: ['sh', '-c', 'sleep 6000']
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: certs
+          mountPath: /opt/ne-mme/certs
+        ports:
+        - containerPort: 3868
+          name: ne-mme
+          protocol: TCP
+        - containerPort: 5868
+          name: ne-mme-secure
+          protocol: TCP
+        - containerPort: 2123
+          protocol: UDP
+          name: ne-mme-s11-gtpc
+        env:
+          - name: NW_S1AP_IP
+            valueFrom:
+              configMapKeyRef:
+                name: ne-mme-config
+                key: nw_s1ap_ip
+          - name: NW_GTPC_IP
+            valueFrom:
+              configMapKeyRef:
+                name: ne-mme-config
+                key: nw_gtpc_ip
+          - name: NW_SGW_GTPC_IP
+            valueFrom:
+              configMapKeyRef:
+                name: ne-mme-config
+                key: nw_sgw_gtpc_ip
+          - name: NW_PGW_GTPC_IP
+            valueFrom:
+              configMapKeyRef:
+                name: ne-mme-config
+                key: nw_pgw_gtpc_ip
+          - name: MCC
+            valueFrom:
+              configMapKeyRef:
+                name: ne-mme-config
+                key: mcc
+          - name: MNC
+            valueFrom:
+              configMapKeyRef:
+                name: ne-mme-config
+                key: mnc
+          - name: TAC
+            valueFrom:
+              configMapKeyRef:
+                name: ne-mme-config
+                key: tac
+          - name: MME_GID
+            valueFrom:
+              configMapKeyRef:
+                name: ne-mme-config
+                key: mme_gid
+          - name: MNC_CODE
+            valueFrom:
+              configMapKeyRef:
+                name: ne-mme-config
+                key: mnc_code
+          - name: NW_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: ne-mme-config
+                key: nw_name
+      - name: tcpdump
+        image: corfr/tcpdump
+        command:
+          - /bin/sleep
+          - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      serviceAccountName: ne-mme-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: certs
+        secret:
+          secretName: ne-mme-tls-secret
